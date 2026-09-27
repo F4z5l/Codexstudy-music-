@@ -1,0 +1,4 @@
+{"cleanUrls":true,"trailingSlash":false,
+"redirects":[{"source":"/_next/image","has":[{"type":"query","key":"url","value":"(?<u>.*)"}],"destination":":u","permanent":false}],
+"headers":[{"source":"/ayu-sw.js","headers":[{"key":"Cache-Control","value":"no-cache"}]}],
+"rewrites":[{"source":"/ayumusic","destination":"/index.html"}]}

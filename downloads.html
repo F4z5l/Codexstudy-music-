@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Downloads — AYUMUSIC</title>
+<script src="/ayu-offline.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#000;color:#fff;font-family:system-ui,sans-serif;padding:24px 18px 140px}
+a.back{color:#aaa;text-decoration:none;font:800 11px system-ui;letter-spacing:.2em;text-transform:uppercase}
+h1{font-size:34px;font-weight:900;letter-spacing:-.02em;margin:18px 0 4px}.sub{color:#777;font-size:13px;margin-bottom:22px}
+.row{display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;cursor:pointer}.row:hover,.row.on{background:#151515}
+.row img,.ph{width:52px;height:52px;border-radius:10px;object-fit:cover;background:#222;flex:none}
+.meta{flex:1;min-width:0}.n{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.a{color:#888;font-size:13px}
+.del{background:none;border:0;color:#666;font-size:18px;cursor:pointer;padding:8px}.del:hover{color:#f55}
+.empty{color:#666;text-align:center;padding:60px 0}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#0d0d0d;border-top:1px solid #222;padding:12px 18px}
+.bar .t{font-weight:700;font-size:14px;margin-bottom:6px}audio{width:100%}
+.off{display:inline-block;background:#222;color:#bbb;border-radius:999px;padding:4px 10px;font-size:11px;margin-left:8px}
+</style></head><body>
+<a class="back" href="/library">&larr; Library</a>
+<h1>Downloads <span id="off" class="off" hidden>Offline</span></h1>
+<div class="sub" id="count"></div>
+<div id="list"></div>
+<div class="bar" id="bar" hidden><div class="t" id="now"></div><audio id="au" controls autoplay></audio></div>
+<script>
+var songs=[],cur=-1,urls=[],au=document.getElementById("au");
+function fmt(){document.getElementById("off").hidden=navigator.onLine}
+addEventListener("online",fmt);addEventListener("offline",fmt);fmt();
+function play(i){cur=i;var s=songs[i];au.src=URL.createObjectURL(s.audio);au.play();
+document.getElementById("bar").hidden=false;document.getElementById("now").textContent=s.name+" — "+s.artist;render()}
+au.onended=function(){if(cur+1<songs.length)play(cur+1)};
+function render(){urls.forEach(URL.revokeObjectURL);urls=[];var L=document.getElementById("list");L.innerHTML="";
+document.getElementById("count").textContent=songs.length+" song"+(songs.length==1?"":"s")+" · available without internet";
+if(!songs.length){L.innerHTML='<div class="empty">No downloads yet.<br>Tap “Download” on any song to save it here.</div>';return}
+songs.forEach(function(s,i){var r=document.createElement("div");r.className="row"+(i==cur?" on":"");
+var c;if(s.cover){c=document.createElement("img");var u=URL.createObjectURL(s.cover);urls.push(u);c.src=u}else{c=document.createElement("div");c.className="ph"}
+var m=document.createElement("div");m.className="meta";m.innerHTML='<div class="n"></div><div class="a"></div>';
+m.children[0].textContent=s.name;m.children[1].textContent=s.artist;
+var d=document.createElement("button");d.className="del";d.title="Remove";d.textContent="✕";
+d.onclick=function(e){e.stopPropagation();ayuDownloads.remove(s.id).then(load)};
+r.onclick=function(){play(i)};r.append(c,m,d);L.appendChild(r)})}
+function load(){ayuDownloads.all().then(function(a){songs=(a||[]).sort(function(x,y){return y.savedAt-x.savedAt});render()})}
+load();
+</script></body></html>
